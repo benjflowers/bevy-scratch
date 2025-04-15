@@ -48,11 +48,10 @@ fn spawn_circle_system(
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     for event in circle_events.read() {
-        let color_augment = event.world_position.x * 0.002;
         println!("Spawn circle at: {:?}", event.world_position);
         commands.spawn((
             Mesh2d(meshes.add(Circle::new(50.0))),
-            MeshMaterial2d(materials.add(ColorMaterial::from_color(Color::hsl(40.0 + color_augment, 90.0, 0.5)))),
+            MeshMaterial2d(materials.add(ColorMaterial::from_color(Color::hsl(40.0, 90.0, 0.5)))),
             Transform::default().with_translation(Vec3::new(event.world_position.x, event.world_position.y, 0.0)),
         ));
     }
