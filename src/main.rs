@@ -14,7 +14,9 @@ fn setup_camera(mut commands: Commands) {
 
 #[derive(Event)]
 struct SpawnCircleEvent {
-    position: Vec2,
+    window_position: Vec2, // Raw cursor position
+    world_position: Vec2, // Transformed position for rendering
+    window_size: Vec2, // Current Window size
 }
 
 fn mouse_input_system(
@@ -24,25 +26,42 @@ fn mouse_input_system(
 ) {
     if buttons.just_pressed(MouseButton::Left) {
         let window = q_windows.single();
-        if let Some(position) = window.cursor_position() {
-            circle_events.send(SpawnCircleEvent {position});
+        if let Some(click_position) = window.cursor_position() {
+            // get window dimenstions
+            let window_size = Vec2::new(window.width(), window.height());
+
+            // calculated world position to pass to transform
+            let world_position = calculate_world_position(click_position, window_size);
+            circle_events.send(SpawnCircleEvent {
+                window_position: click_position,
+                world_position,
+                window_size,
+            });
         } 
     }
 }
 
 fn spawn_circle_system(
-    mut circle_events: EventReader<SpawnCircleEvent>
+    mut circle_events: EventReader<SpawnCircleEvent>,
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     for event in circle_events.read() {
-        println!("Spawn circle at: {:?}", event.position);
-        // Here you would spawn the circle entity using the event.position
-        // For example:
-        // commands.spawn_bundle(SpriteBundle {
-        //     material: materials.add(ColorMaterial::from(Color::RED)),
-        //     transform: Transform::from_translation(Vec3::new(event.position.x, event.position.y, 0.0)),
-        //     ..Default::default()
-        // });
+        println!("Spawn circle at: {:?}", event.world_position);
+        commands.spawn((
+            Mesh2d(meshes.add(Circle::new(50.0))),
+            MeshMaterial2d(materials.add(ColorMaterial::from_color(Color::hsl(40.0, 90.0, 0.5)))),
+            Transform::default().with_translation(Vec3::new(event.world_position.x, event.world_position.y, 0.0)),
+        ));
     }
+}
+
+fn calculate_world_position(click_position: Vec2, window_size: Vec2) -> Vec2 {
+    Vec2::new(
+        click_position.x - window_size.x / 2.0,
+        window_size.y / 2.0 - click_position.y
+    )
 }
 
 
@@ -91,19 +110,6 @@ fn spawn_circle_system(
 //     result = Vec2::new(window.width(), window.height());
 //     // println!("Window Size: {:?}", result);
 //     return result;
-// }
-
-// fn spawn_circle(
-//     mut commands: Commands,
-//     mut meshes: ResMut<Assets<Mesh>>,
-//     mut materials: ResMut<Assets<ColorMaterial>>,
-//     pos: Vec2,
-// ) {
-//     commands.spawn((
-//         Mesh2d(meshes.add(Circle::new(50.0))),
-//         MeshMaterial2d(materials.add(ColorMaterial::from_color(Color::hsl(40.0, 90.0, 0.5)))),
-//         // Transform::default().with_translation(Vec3::new(pos.x, pos.y, 0.0)),
-//     ));
 // }
 
 // fn current_pos(
