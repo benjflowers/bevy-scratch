@@ -17,6 +17,7 @@ struct SpawnCircleEvent {
     window_position: Vec2, // Raw cursor position
     world_position: Vec2, // Transformed position for rendering
     window_size: Vec2, // Current Window size
+    circle_rad: Option<f32>,
 }
 
 fn mouse_input_system(
@@ -37,6 +38,7 @@ fn mouse_input_system(
                 window_position: cursor_position,
                 world_position,
                 window_size,
+                circle_rad: None,
             });
         }
 
@@ -46,21 +48,22 @@ fn mouse_input_system(
                 window_position: cursor_position,
                 world_position,
                 window_size,
+                circle_rad: Some(5.0),
             });
         }
     }
 }
 
 fn spawn_circle_system(
-    mut circle_events: EventReader<SpawnCircleEvent>,
+    mut circle_events_r: EventReader<SpawnCircleEvent>,
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    for event in circle_events.read() {
+    for event in circle_events_r.read() {
         println!("Spawn circle at: {:?}", event.world_position);
         commands.spawn((
-            Mesh2d(meshes.add(Circle::new(10.0))),
+            Mesh2d(meshes.add(Circle::new(event.circle_rad.unwrap_or(10.0)))),
             MeshMaterial2d(materials.add(ColorMaterial::from_color(Color::hsl(40.0, 90.0, 0.5)))),
             Transform::default().with_translation(Vec3::new(event.world_position.x, event.world_position.y, 0.0)),
         ));
