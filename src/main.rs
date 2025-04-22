@@ -3,6 +3,8 @@ use bevy::{
     render::mesh::Mesh,
 };
 
+use rand::Rng;
+
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
@@ -20,15 +22,21 @@ fn spawn_circle(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>
 ) {
-    commands.spawn((
-        Mesh2d(meshes.add(Circle::new(2.0))),
-        MeshMaterial2d(materials.add(ColorMaterial::from_color(Color::hsl(40.0, 90.0, 0.5))))
-    ));
+    let mut i = 0;
+    while i < 100 {
+        commands.spawn((
+            Mesh2d(meshes.add(Circle::new(2.0))),
+            MeshMaterial2d(materials.add(ColorMaterial::from_color(Color::hsl(40.0, 90.0, 0.5))))
+        ));
+        i = i + 1
+    }
 }
 
 fn crawl(mut meshes: Query<&mut Transform, With<Mesh2d>>) {
+    let mut rng = rand::rng();
+
     for mut transform in &mut meshes {
-        transform.translation.x += 0.5;
-        transform.translation.y += 0.5;
+        transform.translation.x += rng.random_range(-1.0..1.0);
+        transform.translation.y += rng.random_range(-1.0..1.0);
     }
 }
