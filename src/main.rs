@@ -1,70 +1,30 @@
-use bevy::{
-    prelude::*,
-    render::mesh::Mesh,
-};
+use bevy::prelude::*;
+use clap::Parser;
+/**
+ * 1. provide a bpm
+ * 2. provide an image
+ * 3. based on bpm alter the image
+ */
 
-use rand::{Rng, SeedableRng};
-use rand_chacha::ChaCha8Rng;
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    #[arg(long, default_value_t = 120)]
+    bpm: u32,
+
+    #[arg(long)]
+    image: Option<String>,
+}
 
 fn main() {
+    let args = Args::parse();
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_systems(Startup, (setup))
+        .insert_resource(BpmSettings {bpm: args.bpm})
         .run();
 }
 
-#[derive(Component)]
-
-struct Crawler{
-    pos: Vec2,
-    size: f32
-}
-
-#[derive(Event)]
-struct Crawl;
-
-#[derive(Event)]
-struct MoveCrawler{
-    pos: Vec2
-}
-
-impl Crawler {
-    fn random(rand: &mut ChaCha8Rng) -> Self {
-        Crawler {
-            pos: Vec2::new(
-                (rand.random::<f32>()),
-                (rand.random::<f32>()),
-            ),
-            size: 4.0
-        }
-    }
-}
-
-fn setup(
-    mut commands: Commands
-) {
-    // spawn camera
-    commands.spawn(Camera2d);
-    let mut rng = ChaCha8Rng::seed_from_u64(19878367467713);
-    let mut observer = Observer::new(crawler_move);
-
-    for _ in 0..100 {
-        let entity = commands.spawn(Crawler::random(&mut rng)).id();
-        observer.watch_entity(entity);
-    }
-
-    commands.spawn(observer);
-}
-
-fn crawler_move(trigger: Trigger<Crawl>, query: Query<&Crawler>, mut commands: Commands) {
-    let id = trigger.entity();
-    let Some(mut entity) = commands.get_entity(id) else {
-        return;
-    };
-    let crawler = query.get(id).unwrap();
-
-    commands.trigger(MoveCrawler{
-        pos: crawler.pos
-    });
-    println!("{}", id);
+#[derive(Resource)]
+struct BpmSettings {
+    bpm: u32
 }
