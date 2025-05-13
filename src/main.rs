@@ -21,10 +21,24 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .insert_resource(BpmSettings {bpm: args.bpm})
+        .add_systems(Startup, setup)
         .run();
 }
 
 #[derive(Resource)]
 struct BpmSettings {
     bpm: u32
+}
+
+#[derive(Resource)]
+struct BeatTimer {
+    timer: Timer,
+}
+
+fn setup(mut commands: Commands, bpm_settings: Res<BpmSettings>) {
+    let seconds_per_beat = 60.0/bpm_settings.bpm as f32;
+
+    commands.insert_resource(BeatTimer {
+        timer: Timer::from_seconds(seconds_per_beat, TimerMode::Repeating)
+    });
 }
