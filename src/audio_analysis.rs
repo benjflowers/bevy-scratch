@@ -4,6 +4,13 @@ use rustfft::num_complex::Complex;
 
 use hound;
 
+#[derive(Debug)]
+struct FrequencyAnalysis {
+  bass: f32,
+  mids: f32,
+  highs: f32,
+}
+
 fn read_audio_file() -> Result<Vec<f32>, Box<dyn std::error::Error>> {
   let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
   .join("src")
@@ -42,8 +49,52 @@ fn generate_spectrogram(audio_data: &[f32]) -> Vec<Vec<f32>> {
     spectrogram
 }
 
+fn analyze_frequency_bands(spectrogram: &Vec<Vec<f32>>, _sample_rate: f32) -> Vec<FrequencyAnalysis> {
+  let mut results = Vec::new();
+  
+  // For each time window
+  for window_data in spectrogram {
+      // Define frequency ranges (in bin indices)
+      // Example: for 44.1kHz and 1024-sample window
+      let bass_range = 1..12;        // ~43Hz to ~516Hz
+      let mid_range = 12..93;        // ~516Hz to ~4,000Hz
+      let high_range = 93..232;      // ~4,000Hz to ~10,000Hz
+      
+      // Calculate energy in each band
+      let bass_energy = calculate_band_energy(window_data, &bass_range);
+      let mid_energy = calculate_band_energy(window_data, &mid_range);
+      let high_energy = calculate_band_energy(window_data, &high_range);
+      
+      results.push(FrequencyAnalysis {
+          bass: bass_energy,
+          mids: mid_energy,
+          highs: high_energy,
+          // You could add more analysis here
+      });
+  }
+  
+  results
+}
+
+fn calculate_band_energy(window_data: &Vec<f32>, range: &std::ops::Range<usize>) -> f32 {
+  let mut sum = 0.0;
+  for i in range.clone() {
+      if i < window_data.len() {
+          sum += window_data[i];
+      }
+  }
+  
+  // Average and normalize
+  if range.end > range.start {
+      sum / (range.end - range.start) as f32
+  } else {
+      0.0
+  }
+}
+
 pub fn main() {
   let audio_data = read_audio_file().unwrap();
   let spectrogram = generate_spectrogram(&audio_data);
-  println!("spectrogram legnth {}", spectrogram.len());
+  let results = analyze_frequency_bands(&spectrogram, 44100.0);
+  println!("First 10 frames: {:?}", &results[0..5.min(results.len())]);
 }
