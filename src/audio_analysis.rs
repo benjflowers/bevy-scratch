@@ -4,14 +4,14 @@ use rustfft::num_complex::Complex;
 
 use hound;
 
-#[derive(Debug)]
-struct FrequencyAnalysis {
-  bass: f32,
-  mids: f32,
-  highs: f32,
+#[derive(Debug, Clone)]
+pub struct FrequencyAnalysis {
+  pub bass: f32,
+  pub mids: f32,
+  pub highs: f32,
 }
 
-fn read_audio_file() -> Result<Vec<f32>, Box<dyn std::error::Error>> {
+pub fn read_audio_file() -> Result<Vec<f32>, Box<dyn std::error::Error>> {
   let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
   .join("src")
   .join("music")
@@ -34,7 +34,7 @@ const WINDOW_SIZE: usize = 1024;
 // apparently 'standard practice'
 const HOP_SIZE: usize = 512;
 
-fn generate_spectrogram(audio_data: &[f32]) -> Vec<Vec<f32>> {
+pub fn generate_spectrogram(audio_data: &[f32]) -> Vec<Vec<f32>> {
     let mut planner = FftPlanner::new();
     let fft = planner.plan_fft_forward(WINDOW_SIZE);
     let mut spectrogram = Vec::new();
@@ -49,7 +49,7 @@ fn generate_spectrogram(audio_data: &[f32]) -> Vec<Vec<f32>> {
     spectrogram
 }
 
-fn analyze_frequency_bands(spectrogram: &Vec<Vec<f32>>, _sample_rate: f32) -> Vec<FrequencyAnalysis> {
+pub fn analyze_frequency_bands(spectrogram: &Vec<Vec<f32>>, _sample_rate: f32) -> Vec<FrequencyAnalysis> {
   let mut results = Vec::new();
   
   // For each time window
@@ -90,11 +90,4 @@ fn calculate_band_energy(window_data: &Vec<f32>, range: &std::ops::Range<usize>)
   } else {
       0.0
   }
-}
-
-pub fn main() {
-  let audio_data = read_audio_file().unwrap();
-  let spectrogram = generate_spectrogram(&audio_data);
-  let results = analyze_frequency_bands(&spectrogram, 44100.0);
-  println!("First 10 frames: {:?}", &results[0..5.min(results.len())]);
 }

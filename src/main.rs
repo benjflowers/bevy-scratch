@@ -4,10 +4,10 @@ mod audio_analysis;
 fn main() {
   App::new()
     .add_plugins(DefaultPlugins)
-    .add_systems(Startup, audio_thing)
+    .add_systems(Startup, setup)
     .run();
 }
 
-fn audio_thing() {
-  audio_analysis::main();
+fn setup(mut commands: Commands) {
+  commands.spawn(Camera2d);
 }
