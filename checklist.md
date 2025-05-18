@@ -2,8 +2,8 @@
 
 ## UI Implementation (ui.rs)
 - [ ] Create UiPlugin structure
-  - [ ] Define plugin that registers UI systems
-  - [ ] Add necessary dependencies on Bevy UI plugins
+  - [/] Define plugin that registers UI systems
+  - [/] Add necessary dependencies on Bevy UI plugins
 - [ ] Implement basic play button
   - [ ] Create centered play button with clear styling
   - [ ] Add button label text
