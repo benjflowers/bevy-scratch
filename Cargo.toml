@@ -1,3 +1,8 @@
+[workspace]
+members = [
+  "bevy_audio_analyser"
+]
+
 [package]
 name = "bevy_draw"
 version = "0.1.0"
