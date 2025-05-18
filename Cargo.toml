@@ -9,9 +9,10 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-bevy = "0.15.3"
+bevy = "0.16.0"
 hound = "3.4"
 rustfft = "5.1"
 rand = "0.9.1"
 rand_chacha = "0.9.0"
 clap = { version = "4.5", features = ["derive"] }
+uuid = "1.16.0" 
