@@ -22,6 +22,28 @@ pub struct AudioController {
     current_position: f64, // in seconds
 }
 
+impl AudioController {
+  pub fn load_sound(&mut self, path: &str) -> Result<(), String> {
+    if let Some(sender) = &self.sender {
+      sender.send(AudioCommand::LoadSound(path.to_string()))
+        .map_err(|_| "failed to send load command".to_string())
+    } else {
+      Err("Audio controller to initialized".to_string())
+    }
+  }
+
+  pub fn play(&mut self) -> Result<(), String> {
+    if let Some(sender) = &self.sender {
+      self.is_playing = true;
+      self.current_position = 0.0;
+      sender.send(AudioCommand::Play)
+        .map_err(|_| "Failed to send play command".to_string())
+    } else {
+      Err("Audio controller not initialized".to_string())
+    }
+  }
+}
+
 pub struct AudioControllerPlugin;
 
 impl Plugin for AudioControllerPlugin {
