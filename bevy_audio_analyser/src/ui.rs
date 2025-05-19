@@ -32,6 +32,7 @@ fn button_system(
       (Changed<Interaction>, With<Button>),
   >,
   mut text_query: Query<&mut Text>,
+  mut play_event_w: EventWriter<AudioPlaybackEvent>
 ) {
   for (interaction, mut color, mut border_color, children) in &mut interaction_query {
       let mut text = text_query.get_mut(children[0]).unwrap();
@@ -40,6 +41,7 @@ fn button_system(
               **text = "PLAYING!".to_string();
               *color = PRESSED_BUTTON.into();
               border_color.0 = RED.into();
+              play_event_w.write(AudioPlaybackEvent);
           }
           Interaction::Hovered => {
               **text = "CAREFUL".to_string();
