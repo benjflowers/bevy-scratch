@@ -7,6 +7,7 @@ use kira::sound::static_sound::{StaticSoundData, StaticSoundSettings};
 use std::path::Path;
 use std::sync::mpsc::{channel, Sender};
 use std::thread;
+use crate::ui::AudioPlaybackEvent;
 
 enum AudioCommand {
   LoadSound(String),
@@ -44,12 +45,25 @@ impl AudioController {
   }
 }
 
+fn handle_ui_events(
+  mut events: EventReader<AudioPlaybackEvent>,
+  mut controller: ResMut<AudioController>,
+) {
+  for _ in events.read() {
+    info!("Play button clicked, starting playback");
+    if let Err(e) = controller.play() {
+      error!("Failed to play audio: {}", e);
+    }
+  }
+}
+
 pub struct AudioControllerPlugin;
 
 impl Plugin for AudioControllerPlugin {
   fn build(&self, app: &mut App) {
     app.init_resource::<AudioController>()
-      .add_systems(Startup, setup_audio_controller);
+      .add_systems(Startup, setup_audio_controller)
+      .add_systems(Update, handle_ui_events);
   }
 }
 
@@ -81,9 +95,9 @@ fn setup_audio_controller(mut controller: ResMut<AudioController>) {
                       match manager.play(sound.clone()) {
                         Ok(_) => info!("Sound started playing"),
                         Err(e) => error!("Failed to play sound: {:?}", e),
-                      } else {
-                        warn!("Attempted to play, but no sound is loaded");
                       }
+                    } else {
+                      warn!("Attempted to play, but no sound is loaded");
                     }
                   },
                   AudioCommand::Stop => {
