@@ -1,15 +1,15 @@
 # Audio Player Implementation Checklist
 
 ## UI Implementation (ui.rs)
-- [ ] Create UiPlugin structure
+- [/] Create UiPlugin structure
   - [/] Define plugin that registers UI systems
   - [/] Add necessary dependencies on Bevy UI plugins
-- [ ] Implement basic play button
-  - [ ] Create centered play button with clear styling
-  - [ ] Add button label text
-- [ ] Add button state management
-  - [ ] Define interaction states (normal, hovered, pressed)
-  - [ ] Update button appearance based on state
+- [/] Implement basic play button
+  - [/] Create centered play button with clear styling
+  - [/] Add button label text
+- [/] Add button state management
+  - [/] Define interaction states (normal, hovered, pressed)
+  - [/] Update button appearance based on state
 - [ ] Implement button click event system
   - [ ] Create AudioPlaybackEvent
   - [ ] Send event when button is clicked
