@@ -1,38 +1,34 @@
-# Audio Player Implementation Checklist
+# Audio Visualization Implementation Checklist
 
-## UI Implementation (ui.rs)
-- [/] Create UiPlugin structure
-  - [/] Define plugin that registers UI systems
-  - [/] Add necessary dependencies on Bevy UI plugins
-- [/] Implement basic play button
-  - [/] Create centered play button with clear styling
-  - [/] Add button label text
-- [/] Add button state management
-  - [/] Define interaction states (normal, hovered, pressed)
-  - [/] Update button appearance based on state
-- [ ] Implement button click event system
-  - [ ] Create AudioPlaybackEvent
-  - [ ] Send event when button is clicked
-  - [ ] Set up system to detect button interactions
+## Foundation Setup
+- [x] Basic Bevy application with UI
+- [x] Audio playback (basic functionality)
+- [ ] Add dedicated audio library integration
 
-## Audio Player Implementation (audio_player.rs)
-- [ ] Create AudioPlayerPlugin structure
-- [ ] Set up audio resource management
-  - [ ] Create audio handling resources
-  - [ ] Implement audio asset loading
-- [ ] Implement playback controls
-  - [ ] Play functionality
-  - [ ] Pause functionality (optional for first iteration)
-  - [ ] Stop functionality (optional for first iteration)
-- [ ] Add playback state tracking
-- [ ] Create system to handle AudioPlaybackEvent
+## Custom Audio Integration
+- [ ] Choose audio library (rodio, cpal, or kira)
+- [ ] Create wrapper for audio loading/playback
+- [ ] Implement audio buffer access for analysis
+- [ ] Setup audio callback system
 
-## Audio Analysis Integration
-- [ ] Connect audio analysis with playback
-- [ ] Set up realtime analysis system
-- [ ] Create analysis results resource
+## Real-time Analysis Implementation
+- [ ] Create FFT analyzer that processes current buffer
+- [ ] Implement beat detection algorithm
+- [ ] Extract frequency band information
+- [ ] Setup analysis results resource for Bevy systems
 
-## Main Application (main.rs)
-- [ ] Add all plugins to Bevy app
-- [ ] Configure necessary resources
-- [ ] Set up initial application state
+## Synchronization System
+- [ ] Create timing system to align audio and visuals
+- [ ] Implement frame-accurate visual updates
+- [ ] Add debugging/monitoring tools for sync quality
+
+## UI Enhancements
+- [ ] Add visualization controls
+- [ ] Create audio waveform display
+- [ ] Implement spectrum analyzer view
+- [ ] Add performance metrics view
+
+## Export System
+- [ ] Create frame recording system
+- [ ] Implement video export functionality
+- [ ] Add options for resolution/framerate
