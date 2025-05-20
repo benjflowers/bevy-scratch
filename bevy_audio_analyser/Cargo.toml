@@ -7,3 +7,5 @@ edition = "2024"
 bevy = { version = "0.16.0", features = ["wav"] }
 uuid = "1.16.0"
 kira = "0.7.3"
+hound = "3.4"
+rustfft = "5.1"

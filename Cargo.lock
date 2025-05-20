@@ -502,7 +502,9 @@ name = "bevy_audio_analyser"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "hound",
  "kira",
+ "rustfft",
  "uuid",
 ]
 
