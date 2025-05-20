@@ -19,8 +19,8 @@ enum AudioCommand {
 #[derive(Resource, Default)]
 pub struct AudioController {
     sender: Option<Sender<AudioCommand>>,
-    is_playing: bool,
-    current_position: f64, // in seconds
+    pub is_playing: bool,
+    pub current_position: f64, // in seconds
     start_time: f64
 }
 
