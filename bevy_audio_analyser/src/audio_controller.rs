@@ -21,6 +21,7 @@ pub struct AudioController {
     sender: Option<Sender<AudioCommand>>,
     is_playing: bool,
     current_position: f64, // in seconds
+    start_time: f64
 }
 
 impl AudioController {
@@ -33,8 +34,9 @@ impl AudioController {
     }
   }
 
-  pub fn play(&mut self) -> Result<(), String> {
+  pub fn play(&mut self, time: &Time) -> Result<(), String> {
     if let Some(sender) = &self.sender {
+      self.start_time = time.elapsed_secs_f64();
       self.is_playing = true;
       self.current_position = 0.0;
       sender.send(AudioCommand::Play)
@@ -43,15 +45,22 @@ impl AudioController {
       Err("Audio controller not initialized".to_string())
     }
   }
+
+  pub fn update_position(&mut self, current_time: f64) {
+    if self.is_playing {
+      self.current_position = current_time - self.start_time;
+    }
+  }
 }
 
 fn handle_ui_events(
   mut events: EventReader<AudioPlaybackEvent>,
   mut controller: ResMut<AudioController>,
+  time: Res<Time>
 ) {
   for _ in events.read() {
     info!("Play button clicked, starting playback");
-    if let Err(e) = controller.play() {
+    if let Err(e) = controller.play(&time) {
       error!("Failed to play audio: {}", e);
     }
   }
@@ -63,7 +72,26 @@ impl Plugin for AudioControllerPlugin {
   fn build(&self, app: &mut App) {
     app.init_resource::<AudioController>()
       .add_systems(Startup, setup_audio_controller)
-      .add_systems(Update, handle_ui_events);
+      .add_systems(Update, (handle_ui_events, update_audio_position));
+  }
+}
+
+fn update_audio_position(
+  time: Res<Time>,
+  mut controller: ResMut<AudioController>,
+) {
+  if controller.is_playing {
+    let current_time = time.elapsed_secs_f64();
+    controller.update_position(current_time);
+  }
+}
+
+fn debug_audio_position(controller: Res<AudioController>) {
+  if controller.is_playing {
+      // Only print once per second to avoid flooding the console
+      if (controller.current_position * 10.0).round() % 10.0 == 0.0 {
+          info!("Audio position: {:.1}s", controller.current_position);
+      }
   }
 }
 
