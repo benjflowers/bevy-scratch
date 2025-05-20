@@ -1,3 +1,4 @@
+use bevy::prelude::*;
 use std::i16;
 use rustfft::FftPlanner;
 use rustfft::num_complex::Complex;
@@ -19,9 +20,68 @@ pub struct AudioAnalysisResults {
   pub analyzed: bool,
 }
 
+pub struct AudioAnalysisPlugin;
+
+impl Plugin for AudioAnalysisPlugin {
+  fn build(&self, app: &mut App) {
+    app.init_resource::<AudioAnalysisResults>()
+      .add_systems(Startup, prepare_audio_analysis)
+      .add_systems(Update, sync_analysis_to_playback);
+  }
+}
+
+fn prepare_audio_analysis(mut analysis_results: ResMut<AudioAnalysisResults>) {
+  match read_audio_file() {
+    Ok(audio_data) => {
+      let sample_rate = 44100.0;
+
+      info!("Generating spectrogram...");
+      let spectrogram = generate_spectrogram(&audio_data);
+
+      info!("Analyzing frequency bands...");
+      let freq_analysis = analyze_frequency_bands(&spectrogram, sample_rate);
+
+      analysis_results.frequency_analysis = freq_analysis;
+      analysis_results.sample_rate = sample_rate;
+      analysis_results.hop_time = HOP_SIZE as f32 / sample_rate;
+      analysis_results.analyzed = true;
+
+      info!("Audio analysis complete");
+    }
+    Err(e) => {
+      error!("Failed to read audio file: {}", e);
+    }
+  }
+}
+
+fn sync_analysis_to_playback(
+  controller: Res<crate::audio_controller::AudioController>,
+  analysis: Res<AudioAnalysisResults>,
+) {
+  if controller.is_playing && analysis.analyzed {
+      // Calculate which analysis frame corresponds to current position
+      let frame_index = (controller.current_position / analysis.hop_time as f64) as usize;
+      
+      if frame_index < analysis.frequency_analysis.len() {
+          let current_analysis = &analysis.frequency_analysis[frame_index];
+          
+          // Print debug info every second
+          if (controller.current_position * 10.0).round() % 10.0 == 0.0 {
+              info!(
+                  "Time: {:.1}s | Bass: {:.3}, Mids: {:.3}, Highs: {:.3}",
+                  controller.current_position,
+                  current_analysis.bass,
+                  current_analysis.mids,
+                  current_analysis.highs
+              );
+          }
+      }
+  }
+}
+
 pub fn read_audio_file() -> Result<Vec<f32>, Box<dyn std::error::Error>> {
   let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-  .join("src")
+  .join("assets")
   .join("music")
   .join("apr_13_agn.wav");
 
