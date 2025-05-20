@@ -64,17 +64,6 @@ fn sync_analysis_to_playback(
       
       if frame_index < analysis.frequency_analysis.len() {
           let current_analysis = &analysis.frequency_analysis[frame_index];
-          
-          // Print debug info every second
-          if (controller.current_position * 10.0).round() % 10.0 == 0.0 {
-              info!(
-                  "Time: {:.1}s | Bass: {:.3}, Mids: {:.3}, Highs: {:.3}",
-                  controller.current_position,
-                  current_analysis.bass,
-                  current_analysis.mids,
-                  current_analysis.highs
-              );
-          }
       }
   }
 }
