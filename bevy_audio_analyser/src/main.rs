@@ -3,6 +3,7 @@ use bevy::prelude::*;
 mod ui;
 mod audio_player;
 mod audio_controller;
+mod audio_analysis;
 
 fn main() {
   App::new()
@@ -10,6 +11,7 @@ fn main() {
     .add_plugins(ui::UiPlugin)
     .add_plugins(audio_player::AudioPlayerPlugin)
     .add_plugins(audio_controller::AudioControllerPlugin)
+    .add_plugins(audio_analysis::AudioAnalysisPlugin)
     .add_systems(Startup, setup)
     .run();
 }
